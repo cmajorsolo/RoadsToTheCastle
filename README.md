@@ -1,4 +1,4 @@
-# KubernetesLearningPath
+# This is the notes I take down when I am learning stuff
 
-This is the notes I take down when I am learning stuff
+
 
