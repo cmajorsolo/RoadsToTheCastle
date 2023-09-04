@@ -12,6 +12,9 @@
 
 `kubectl describe pod nginx`
 
+`minikube dashboard`
+- show dashboard
+
 ## Creating pod with yaml
 `kubectl create -f pod-definition.yml` or `kubectl apply -f pod-definition.yml` are both used for creating a new pod from the yml file 
 
@@ -111,4 +114,27 @@ OR
 | Delete replicaset  | `kubectl delete replicaset myapp-replicaset`  |
 | Replace replace replicaset with yml  | `kubectl replace -f replicaset-definition.yml`  |
 | Scale replicaset  | `kubectl scale --replicas=6 -f replicaset-definition.yml`  |
+
+## Deployment
+Deployment is for:  
+&nbsp;&nbsp;Rolling updates - replicas scale down one by one and scale up simutaneously one by one
+&nbsp;&nbsp;Rollback - All replicas scales down to 0 and scale up again
+
+### Update and rollback 
+
+
+
+### commands
+| Function | Commands |
+|----------|----------|
+| create deployment  | `kubectl create -f deployment.yaml`  |
+| describe deployment  | `kubectl describe deployment myapp-deployment`  |
+| get all info   | `kubectl get all`  |
+| edit deployment | `kubectl eidt deployment myapp-deployment`  |
+| get roll out status  | `kubectl rollout status deployment/myapp-deployment`  |
+| get deployement history  | `kubectl rollout history deployment.apps/myapp-deployment`  |
+| use `--record` to show caus of change in rollout history  | `kubectl create -f deployment.yaml --record`  |
+| trigger a new rollout deployment with updates in yml  | `kubectl apply -f deployment-definition.yaml`  |
+| trigger a new rollout deployment with updates command  | `kubectl set image deployment/myapp-deployment nginx-container=nginx:1.9.1`  |
+| rollback  | `kubectl rollout undo deployment/myapp-deployment`  |
 
