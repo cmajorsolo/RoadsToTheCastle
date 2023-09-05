@@ -22,6 +22,13 @@ Kubelet: Agent runs on each node. It makes sure that containers are running on t
 - Replication controller: 
     - Load balancing & scaling over nodes
 - Replica set: newer version of Replication controller 
+- Services: group of pods
+    - NodePort
+        - Node:30008 -> Service:80 <- Pod:80
+        - load balancing is automatically done
+    - ClusterIP
+        - Problem statement: when having a system that has a group of front-end pods and back-end pods, how would frontend pods know which backend pod to talk to? Kubernetes provide a layer that groups backend pods together and provides information to frontend pods. Either frontend or backend service gets an ip and name assign to it. Inside the cluster, the name is used by other pods to acces the service. 
+    - LoadBalancer
 
    
 

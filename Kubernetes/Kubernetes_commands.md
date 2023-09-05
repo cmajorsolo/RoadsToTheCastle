@@ -138,3 +138,12 @@ Deployment is for:
 | trigger a new rollout deployment with updates command  | `kubectl set image deployment/myapp-deployment nginx-container=nginx:1.9.1`  |
 | rollback  | `kubectl rollout undo deployment/myapp-deployment`  |
 
+
+## Services
+
+### Commands
+| Commands| Function  |
+|----------|----------|
+| `kubectl get svc`  |  get services |
+| `minikube service myapp-service --url`  |  get service ip address |
+
