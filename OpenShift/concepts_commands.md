@@ -133,5 +133,143 @@ sock shop: https://github.com/mosuke5/microservices-demo-openshift
     - Configuration Change: Pod template change -> creates new replication controller 
 
         <img src="build_trigger.png" width="800" height="400">
+- Autoscale
+    - `oc autoscale deployment/front-end --min=2 --max=7`
+    - yml to auto scale
 
+        ```yml
+        apiVersion: autoscaling/v1
+        kind: HorizontalPodAutoscaler
+        metadata:
+          name: front-end
+          namespace: default
+        spec:
+          maxReplicas: 7
+          minReplicas: 3
+          scaleTargetRef:
+            apiversion: apps/v1
+            kind: Deployment
+            name: front-end
+          targetCPUutilizationPercentage: 75    
+        ```
+- Resource allocation
+    - Dynamic provisioning 
+    - CPU and RAM - The requested but not used CPU will be retained. The requested but not used memory will be give back.
+        ```yml
+        apiVersion: v1
+        kind: ResourceQuota
+        metadata: 
+          name: memorylimit
+          namespace: test
+        spec: # Setting up requests and limits of memories
+          hard:
+            requests.memory: 512Mi 
+            limits.memory: 1000Mi
+        
+        ```
+        ```yml
+        apiVersion: v1
+        kind: Deployment
+        metadata: 
+          name: carts-db
+          labels:
+            name: carts-db
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: carts-db
+          template:
+            metadata:
+              labels:
+                name: carts-db
+            spec:
+              containers:
+              - name: carts-db
+                image: centos/mongodb-34-centos7
+                resources:
+                  requests: 
+                    memory: "64Mi" # request for memroy 
+                    cpu: "250m" # request for cpu
+                  limits:
+                    memory: "128Mi" # max memory is 128Mi
+                ports:
+                - name: mongo
 
+        ```
+    - Reousrce Quota: 
+        
+        limit.yml
+        ```yml 
+        apiVersion: v1
+        kind: ResourceQuota
+        metadata: 
+          name: memorylimit
+          namespace: test # Setting up resource limits for the project test
+        spec: 
+          hard:
+            configmaps: "10"
+            services: "10"
+            secrets: "10"
+            services.loadbalancers: "2"        
+        ```
+
+        `oc apply -f limit.yml` Applys the limit to the current project 
+
+        `oc get resourcequota -n test` Show the current quota
+
+    - Template and Config: create a project with template yml config file
+
+        template-config.yml
+        ```yml 
+        apiVersion: v1
+        kind: Template
+        metadata: 
+          name: custom-app
+          namespace: test # project test
+        objects: # contains an array of applications in this template
+        - apiVersion: v1
+          kind: Secret
+          ....
+        - apiVersion: v1
+          kind: Service
+          ....
+        - apiVersion: v1
+          kind: BuildConfig
+          ....
+        - apiVersion: v1
+          kind: DeploymentConfig
+          ....
+        - apiVersion: v1
+          kind: ImageStream
+          ....
+        - apiVersion: v1
+          kind: Service
+          ....
+        - apiVersion: v1
+          kind: Route
+          ....
+        parameters: 
+          - displayName: "Namespace" # name of the wizard created here
+            name: "NAMESPACE"
+          ....
+        ```
+
+        `oc create -f template-config.yml` creats template named custom-app
+
+        `oc export service db` exports the service yml file which can be used as a template
+
+- User management: 
+    - `oc create user Mike`
+    - `oc create identity allow_all: mike` create Indentity for user
+    - `oc create iuserdentitymapping allow_all: mike` user identity mapping flag
+    - `oc delete user Mike`
+- Service account: a service acc is used for a specific job 
+    - If no servcie acc, Kub's default service acc get used. 
+    - `oc create sa Mikesa`
+    - `oc get sa Mikesa` get information from the sa
+    - `oc policy add-role-to-user view system:serviceaccount:default:hzsa` creating a policy to 
+- Group: add to a role to the group to give users certain access
+    - `oc adm groups new mikesgroup mike michelle`
+- RBAC: role based access control
+    - 
