@@ -272,4 +272,75 @@ sock shop: https://github.com/mosuke5/microservices-demo-openshift
 - Group: add to a role to the group to give users certain access
     - `oc adm groups new mikesgroup mike michelle`
 - RBAC: role based access control
-    - 
+    - Role binding: binding a role to a namespace 
+    - Cluster role binding: bining a role to a cluster 
+- ConfigMap: Inject containers with Config data
+    - provides API
+    - key value pairs
+    - make your code reusable 
+      
+      cartsconfig.yml
+
+      ```yml
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: cartsdb-config
+      data:
+        MONGODB_USER: "sock-user"
+        MONGODB_DATABASE: "data" 
+      ```
+      cartsconfigmap.yml
+
+      ```yml
+      apiVersion: v1
+      kind: Deployment
+      metadata:
+        name: carts-db
+        labels: 
+          name: carts-db
+      spec:
+        containers:
+        - name: carts-db
+          image: centos/mongodb-34-centos7
+          ports:
+          - name: mongo
+            containerPort: 27017
+          env:
+          - name: MONGODB_USER
+            valueFrom: # specify the data from config map
+              configMapKeyRef:
+                name: cartsdb-config
+                key: MONGODB_USER
+          - name: MONGODB_PASSWORD
+            valueFrom: # specify the data from secrets
+              configMapKeyRef:
+                name: dbpassword
+                key: MONGODB_PASSWORD
+      ```
+      `oc apply -f cartsconfig.yml`
+
+      `oc apply -f cartsconfigmap.yml`
+  - Secret
+      ```yml
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: dbpassword
+        namespace: default
+      type: Opaque
+      data:
+        MONGODB_PASSWORD: password
+      ```
+  - Network Policies:
+    - OSI model: 
+      - application layer: what application can access the network
+      - presentation layer: ensures data in a usable format - data encryption happens here
+      - session layer: mantains connection
+      - transport layer: transmit data in TCP or UDP
+      - network layer: physical path the data is going to transport
+      - data link layer: difines the format of the data that is pushed to the network 
+      - physical layer: 
+        <img src="network.png" width="800" height="400">
+  - SCC: security context controls - Privillage access control on pods; Network policies is all from networking perpspective like networking, ingress, traffic etc 
+      
